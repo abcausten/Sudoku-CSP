@@ -33,9 +33,9 @@ All Sudoku rules are converted into **binary constraints**, stored in a boolean 
 bool C[81][81];
 ```
 
-`C[x][y]` is `true` if and only if cells `x` and `y` must be different, meaning they are in the same row, column, or 3x3 subgrid. Each cell is constrained against 20 others (8 in its row, 8 in its column, and 4 more in its subgrid), so the matrix has 1,620 `true` entries, and each one is an **arc** in the constraint graph.
+`C[x][y]` is `true` if and only if cells `x` and `y` must be different, meaning they are in the same row, column, or 3x3 subgrid. Each cell is constrained against 20 others (8 in its row, 8 in its column, and 4 more in its subgrid), and each one is an **arc** in the constraint graph.
 
-An arc is stored with this structure:
+Arcs are stored in this format:
 
 ```cpp
 struct arcType {
@@ -123,21 +123,6 @@ Backtracking search with the **Minimum Remaining Values (MRV)** heuristic. `coun
 
 The basic `backtrackCSP` given with the assignment is the same search, but it picks the next unassigned cell in order (cell 0, 1, 2, ...), with no heuristic.
 
-### Using the functions together
-
-The two techniques can be combined. Run `AC3` first to shrink the domains, so that MRV has smaller and more informative domains to choose from:
-
-```cpp
-getSudokuCSP(puzzle, assignment, domain);   // build the CSP
-AC3(domain, C);                             // optional inference step
-int count = 0;
-for (int i = 0; i < 81; i++)
-    if (assignment[i] > 0) count++;         // already-given cells
-vector<int> solution = backtrackCSP_MRV(assignment, count, domain, C);
-```
-
-An empty `solution` means no solution was found.
-
 ## Compile and run 
 
 ```
@@ -151,7 +136,7 @@ When the program starts, it loads the first puzzle, shows the board, and shows t
 
 ### The Puzzle
 
-Given cells show their digit and empty cells are blank. The thick `#` lines separate the nine 3x3 subgrids.
+The cells show their digit and empty cells are blank. The `#` lines separate the nine 3x3 subgrids.
 
 ```
 #===========#===========#===========#
@@ -247,15 +232,7 @@ Enter the two cells you want to resolve (indexed 0-80 as discussed) :
 ```
 
 Type two cell indices separated by a space (for example `0 3`) and press Enter. The first cell is `xi`, the one whose domain may shrink, and the second is `xj`, the one it is checked against.
-
-| Result | Printed message |
-|--------|-----------------|
-| A value was removed from `xi` | `The domain of cell #xi has been revised. Here is the new domain: {...}.` |
-| Nothing changed | `No revisions.` |
-
 For example, `0 3` asks whether cell 0 must lose any values given cell 3 (the given 5 in the top row). Cell 3 has only one possible value, so `5` is removed from cell 0's domain.
-
-After the three tests, the program shows the full domain grid again so you can see what changed.
 
 
 ## Helper Functions
