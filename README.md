@@ -79,13 +79,7 @@ bool revise(int xi, int xj, vector<int> domain[81], const bool C[81][81]);
 ```
 
 Makes one arc `(xi, xj)` **consistent**. A value `x` in the domain of `xi` is kept only if some value `y` in the domain of `xj` satisfies the constraint, which for Sudoku means `x != y`.
-
-1. If there is no constraint between the two cells (`C[xi][xj]` is `false`), do nothing.
-2. For each value `x` in `domain[xi]`, check whether `domain[xj]` holds at least one different value.
-3. If none exists, remove `x` from `domain[xi]`.
-
 **Returns** `true` if any value was removed, and `false` if the domain was unchanged.
-
 For example, if `xj` is already fixed to `{5}`, then 5 is removed from `xi`'s domain, because no value in `xj` can differ from 5.
 
 ### `AC3`
@@ -95,14 +89,6 @@ bool AC3(vector<int> domain[81], const bool C[81][81]);
 ```
 
 Enforces consistency across **every** arc in the puzzle, repeating until nothing changes.
-
-1. Fill a queue with every arc `(xi, xj)` where `C[xi][xj]` is `true` (1,620 arcs).
-2. Remove one arc from the queue and call `revise(xi, xj)`.
-3. If `revise` shrank `domain[xi]`:
-   - If the domain is now **empty**, the puzzle has no solution, so return `false`.
-   - Otherwise, a change to `xi` can affect its neighbors, so add the arcs `(xk, xi)` for every neighbor `xk` of `xi`.
-4. When the queue is empty, return `true`.
-
 On many puzzles AC-3 alone removes a large share of the possibilities, and it fills in some cells completely. It works as a preprocessing step before the search. It changes the `domain` array in place.
 
 ### `backtrackCSP_MRV`
@@ -113,14 +99,6 @@ vector<int> backtrackCSP_MRV(vector<int> assignment, int count,
 ```
 
 Backtracking search with the **Minimum Remaining Values (MRV)** heuristic. `count` is the number of cells already assigned, and `assignment` holds the current partial solution.
-
-1. **Base case:** if `count >= 81`, every cell is assigned, so return the solution.
-2. **Choose a variable (MRV):** among the unassigned cells, pick the one with the **fewest values left in its domain**. This is the most constrained cell, so a dead end is detected as early as possible.
-3. **Try each value** in that cell's domain. A value is *consistent* if no neighboring cell (`C[cell][j]` is `true`) already holds it.
-4. For a consistent value, assign it and recurse with `count + 1`. If the recursion returns a solution, return it.
-5. If it fails, **backtrack**: reset the cell to `0` and try the next value.
-6. If no value works, return an **empty vector**, which signals failure to the caller.
-
 The basic `backtrackCSP` given with the assignment is the same search, but it picks the next unassigned cell in order (cell 0, 1, 2, ...), with no heuristic.
 
 ## Compile and run 
